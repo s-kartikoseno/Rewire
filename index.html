@@ -575,15 +575,22 @@ Rules:
         "anthropic-dangerous-allow-browser": "true"
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-20250514",
+        model: "claude-sonnet-4-6",
         max_tokens: 1000,
         system: SYSTEM_PROMPT + "\n\nThe user's habit is: " + habitName,
         messages: history
       })
     });
     if (!resp.ok) {
-      const err = await resp.json().catch(() => ({}));
-      throw new Error(err.error?.message || "API error " + resp.status);
+      let errMsg = "API error " + resp.status;
+      try {
+        const err = await resp.json();
+        errMsg = err.error?.message || errMsg;
+      } catch(e) {}
+      if (resp.status === 401) errMsg = "Invalid API key. Please check and re-enter your key.";
+      if (resp.status === 403) errMsg = "API key does not have permission. Make sure it is active.";
+      if (resp.status === 429) errMsg = "Rate limit hit. Please wait a moment and try again.";
+      throw new Error(errMsg);
     }
     const data = await resp.json();
     const reply = data.content.map(b => b.text || "").join("");
