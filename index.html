@@ -425,7 +425,6 @@ function addMsg(role,text){
   } else {
     av.textContent='You';
   }
-  }
   const bub=document.createElement('div');
   bub.className='bubble';
   bub.innerHTML=text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
