@@ -5,533 +5,1012 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Rewire — Break the loop. Build a better one.</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     :root{
-      --navy:#1B2D4F;--navy-mid:#2B4A7A;
+      --navy:#1B2D4F;--navy-mid:#2B4A7A;--navy-light:#3D6199;--navy-pale:#EBF4FA;
       --accent:#A8C4E0;--accent-light:#EBF4FA;--accent-lighter:#F5FAFD;
       --white:#FFFFFF;--bg:#F0F6FB;
       --text:#1B2D4F;--text-2:#4A6080;--text-3:#8899AA;
       --border:rgba(168,196,224,0.35);--border-s:rgba(43,74,122,0.2);
-      --green:#2E7D32;--green-bg:#E8F5E9;--green-border:#A5D6A7;
-      --amber:#B45309;--amber-bg:#FEF3C7;--amber-border:#FCD34D;
-      --red:#B91C1C;--red-bg:#FEE2E2;--red-border:#FCA5A5;
-      --r:12px;--rs:8px;--rpill:50px;
+      --green:#1B6B3A;--green-bg:#E6F4EC;--green-border:#85C9A0;
+      --amber:#92500A;--amber-bg:#FEF3C7;--amber-border:#F5C066;
+      --red:#9B1C1C;--red-bg:#FEE8E8;--red-border:#F5A0A0;
+      --blue:#1D4ED8;--blue-bg:#DBEAFE;--blue-border:#93C5FD;
+      --gray:#374151;--gray-bg:#F3F4F6;--gray-border:#D1D5DB;
+      --r:14px;--rs:9px;--rpill:50px;
       --font:'DM Sans',system-ui,sans-serif;
-      --shadow:0 2px 20px rgba(27,45,79,0.08);
-      --shadow-lg:0 8px 40px rgba(27,45,79,0.15);
+      --shadow:0 2px 16px rgba(27,45,79,0.07);
+      --shadow-md:0 4px 24px rgba(27,45,79,0.11);
+      --shadow-lg:0 8px 40px rgba(27,45,79,0.16);
+      --transition:all 0.18s ease;
     }
-    body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;padding:1.5rem 1rem 4rem}
+    html,body{height:100%;overflow:hidden}
+    body{font-family:var(--font);background:var(--bg);color:var(--text);display:flex;flex-direction:column}
 
-    .header{display:flex;align-items:center;gap:10px;margin-bottom:1.75rem;max-width:900px;margin-left:auto;margin-right:auto}
-    .brand{font-size:22px;font-weight:600;color:var(--navy)}
-    .brand-sub{font-size:13px;color:var(--text-3);font-style:italic}
-    .btn-new{margin-left:auto;font-family:var(--font);font-size:13px;font-weight:500;padding:8px 16px;background:var(--navy);color:#fff;border:none;border-radius:var(--rs);cursor:pointer}
-    .btn-new:hover{background:var(--navy-mid)}
+    /* ── SCREEN SYSTEM ── */
+    .screen{display:none;flex-direction:column;height:100vh;overflow:hidden}
+    .screen.active{display:flex}
 
-    /* ONBOARDING */
-    .onboard{max-width:520px;margin:3rem auto;background:var(--white);border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--shadow);padding:2.5rem 2rem;text-align:center}
-    .ob-brand{font-size:28px;font-weight:600;color:var(--navy);margin-bottom:4px}
-    .ob-tag{font-size:14px;color:var(--text-2);font-style:italic;margin-bottom:1.25rem}
-    .ob-disclaimer{font-size:11px;color:var(--text-3);line-height:1.6;padding:.75rem 1rem;background:var(--accent-lighter);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:1.75rem;text-align:left}
-    .ob-label{font-size:15px;font-weight:500;color:var(--navy);margin-bottom:.75rem}
-    .ob-row{display:flex;gap:8px;width:100%}
-    .ob-row input{flex:1;font-family:var(--font);font-size:14px;padding:11px 14px;border:1.5px solid var(--border-s);border-radius:var(--rs);background:var(--white);color:var(--text);outline:none;transition:border-color .15s}
-    .ob-row input:focus{border-color:var(--navy-mid);box-shadow:0 0 0 3px rgba(43,74,122,.1)}
-    .ob-row input::placeholder{color:var(--text-3)}
-    .btn-start{font-family:var(--font);font-size:14px;font-weight:500;padding:11px 20px;background:var(--navy);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;white-space:nowrap}
-    .btn-start:hover{background:var(--navy-mid)}
-    .ob-examples{margin-top:1rem;display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
-    .ob-ex{font-size:12px;padding:4px 12px;border:1px solid var(--border-s);border-radius:var(--rpill);background:var(--white);color:var(--text-2);cursor:pointer}
-    .ob-ex:hover{background:var(--accent-light)}
+    /* ── TOP NAV ── */
+    .topnav{display:flex;align-items:center;gap:10px;padding:.875rem 1.25rem;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0}
+    .topnav-brand{display:flex;align-items:center;gap:8px}
+    .topnav-logo{height:26px;width:auto}
+    .topnav-name{font-size:18px;font-weight:600;color:var(--navy)}
+    .topnav-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+    .btn-icon{width:36px;height:36px;border-radius:var(--rs);border:1px solid var(--border-s);background:transparent;color:var(--text-2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:var(--transition)}
+    .btn-icon:hover{background:var(--accent-light);color:var(--navy)}
+    .btn-primary{font-family:var(--font);font-size:13px;font-weight:500;padding:8px 16px;background:var(--navy);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;transition:var(--transition);display:flex;align-items:center;gap:6px}
+    .btn-primary:hover{background:var(--navy-mid)}
+    .btn-secondary{font-family:var(--font);font-size:13px;font-weight:500;padding:8px 16px;background:transparent;color:var(--text-2);border:1px solid var(--border-s);border-radius:var(--rs);cursor:pointer;transition:var(--transition)}
+    .btn-secondary:hover{background:var(--accent-light);color:var(--navy)}
+    .btn-back{font-family:var(--font);font-size:13px;font-weight:500;padding:6px 12px;background:transparent;color:var(--text-2);border:none;border-radius:var(--rs);cursor:pointer;display:flex;align-items:center;gap:5px;transition:var(--transition)}
+    .btn-back:hover{color:var(--navy);background:var(--accent-light)}
 
-    /* KANBAN */
-    .kanban{display:none;max-width:900px;margin:0 auto}
-    .kanban-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;align-items:start}
-    @media(max-width:700px){.kanban-cols{grid-template-columns:1fr 1fr}}
-    @media(max-width:450px){.kanban-cols{grid-template-columns:1fr}}
-    .col-header{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);padding:0 4px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-    .col-dot{width:8px;height:8px;border-radius:50%}
-    .col-dot.diagnosing{background:#F59E0B}
-    .col-dot.planning{background:#3B82F6}
-    .col-dot.active{background:#10B981}
-    .col-dot.completed{background:#6B7280}
-    .col-body{display:flex;flex-direction:column;gap:8px;min-height:80px}
+    /* ── HOME SCREEN ── */
+    .home-scroll{flex:1;overflow-y:auto;padding:1.25rem}
+    .home-scroll::-webkit-scrollbar{width:4px}
+    .home-scroll::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
 
-    /* HABIT CARD */
-    .hcard{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1rem;cursor:pointer;transition:box-shadow .15s,transform .15s;box-shadow:var(--shadow)}
-    .hcard:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px)}
-    .hcard-top{display:flex;align-items:flex-start;gap:8px;margin-bottom:.75rem}
-    .hcard-emoji{font-size:20px;flex-shrink:0}
-    .hcard-name{font-size:14px;font-weight:500;color:var(--navy);line-height:1.3}
-    .hcard-phase{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:var(--rpill);margin-top:3px;display:inline-block}
-    .hcard-phase.diagnosing{background:#FEF3C7;color:#B45309}
+    /* Dashboard summary row */
+    .dash-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1.5rem;max-width:900px;margin-left:auto;margin-right:auto}
+    @media(max-width:600px){.dash-row{grid-template-columns:repeat(2,1fr)}}
+    .dash-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:.875rem 1rem;text-align:center;box-shadow:var(--shadow)}
+    .dash-num{font-size:26px;font-weight:600;color:var(--navy);line-height:1}
+    .dash-label{font-size:11px;color:var(--text-3);margin-top:4px;font-weight:500;text-transform:uppercase;letter-spacing:.05em}
+    .dash-emoji{font-size:18px;margin-bottom:4px}
+
+    /* Habits section */
+    .section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.875rem;max-width:900px;margin-left:auto;margin-right:auto}
+    .section-title{font-size:14px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em}
+    .habits-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;max-width:900px;margin:0 auto}
+    @media(max-width:520px){.habits-grid{grid-template-columns:1fr}}
+
+    /* Habit card */
+    .hcard{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.125rem;cursor:pointer;transition:var(--transition);box-shadow:var(--shadow);position:relative;overflow:hidden}
+    .hcard:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+    .hcard-accent{position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0}
+    .hcard-accent.diagnosing{background:#F59E0B}
+    .hcard-accent.planning{background:#3B82F6}
+    .hcard-accent.active{background:#10B981}
+    .hcard-accent.completed{background:#6B7280}
+    .hcard-accent.history{background:#9CA3AF}
+    .hcard-top{display:flex;align-items:flex-start;gap:10px;margin-bottom:.75rem;margin-top:4px}
+    .hcard-emoji{font-size:22px;flex-shrink:0;line-height:1}
+    .hcard-info{flex:1;min-width:0}
+    .hcard-name{font-size:14px;font-weight:600;color:var(--navy);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .hcard-phase{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:var(--rpill);margin-top:4px;display:inline-block}
+    .hcard-phase.diagnosing{background:#FEF3C7;color:#92500A}
     .hcard-phase.planning{background:#DBEAFE;color:#1D4ED8}
     .hcard-phase.active{background:#D1FAE5;color:#065F46}
     .hcard-phase.completed{background:#F3F4F6;color:#374151}
-    .hcard-plan{font-size:12px;color:var(--text-2);line-height:1.5;margin-top:.5rem;padding:.5rem .75rem;background:var(--accent-lighter);border-radius:var(--rs);border-left:3px solid var(--accent)}
-    .hcard-strength{margin-top:.625rem}
-    .strength-label{font-size:11px;color:var(--text-3);margin-bottom:3px;display:flex;justify-content:space-between}
-    .strength-bar{height:5px;background:var(--accent-light);border-radius:3px;overflow:hidden}
-    .strength-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--navy-mid));border-radius:3px;transition:width .4s ease}
-    .hcard-streak{display:flex;gap:4px;margin-top:.5rem;flex-wrap:wrap}
-    .streak-dot{width:14px;height:14px;border-radius:50%;border:1.5px solid var(--border-s);background:var(--bg);font-size:7px;display:flex;align-items:center;justify-content:center}
-    .streak-dot.done{background:var(--green-bg);border-color:var(--green-border)}
-    .streak-dot.miss{background:var(--red-bg);border-color:var(--red-border)}
-    .empty-col{font-size:12px;color:var(--text-3);padding:.75rem;text-align:center;border:1.5px dashed var(--border);border-radius:var(--rs)}
+    .hcard-phase.history{background:#F3F4F6;color:#6B7280}
+    .hcard-plan{font-size:12px;color:var(--text-2);line-height:1.5;margin-bottom:.75rem;padding:.5rem .625rem;background:var(--accent-lighter);border-radius:var(--rs);border-left:3px solid var(--accent)}
+    .hcard-stats{display:flex;align-items:center;gap:8px}
+    .hcard-streak-dots{display:flex;gap:3px}
+    .sdot{width:10px;height:10px;border-radius:50%;background:var(--bg);border:1.5px solid var(--border-s)}
+    .sdot.done{background:var(--green-bg);border-color:var(--green-border)}
+    .sdot.miss{background:var(--red-bg);border-color:var(--red-border)}
+    .hcard-score{margin-left:auto;font-size:12px;font-weight:600;color:var(--navy-mid)}
+    .mini-bar{height:4px;background:var(--accent-light);border-radius:2px;overflow:hidden;margin-top:6px}
+    .mini-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--navy-mid));border-radius:2px;transition:width .4s ease}
 
-    /* MODAL */
-    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(27,45,79,.45);z-index:100;align-items:flex-start;justify-content:center;padding:1.5rem 1rem;overflow-y:auto}
-    .modal-overlay.show{display:flex}
-    .modal{background:var(--white);border-radius:var(--r);width:100%;max-width:560px;box-shadow:var(--shadow-lg);overflow:hidden;position:relative}
-    .modal-close{position:absolute;top:12px;right:14px;font-size:20px;cursor:pointer;color:var(--text-3);background:none;border:none;line-height:1;z-index:10}
+    /* Add new card */
+    .hcard-new{background:transparent;border:2px dashed var(--border-s);border-radius:var(--r);padding:1.125rem;cursor:pointer;transition:var(--transition);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:120px;color:var(--text-3)}
+    .hcard-new:hover{border-color:var(--accent);color:var(--navy);background:var(--accent-lighter)}
+    .hcard-new-icon{font-size:24px}
+    .hcard-new-label{font-size:13px;font-weight:500}
 
-    /* CHAT MODAL */
-    .chat-modal-header{display:flex;align-items:center;gap:8px;padding:.875rem 1rem;border-bottom:1px solid var(--border)}
-    .chat-habit-name{font-size:15px;font-weight:600;color:var(--navy)}
-    .chat-phase-badge{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:3px 10px;border-radius:var(--rpill);margin-left:auto;margin-right:28px}
-    .chat-phase-badge.diagnosing{background:#FEF3C7;color:#B45309}
-    .chat-phase-badge.planning{background:#DBEAFE;color:#1D4ED8}
-    .chat-phase-badge.active{background:#D1FAE5;color:#065F46}
+    /* ── HABIT DETAIL SCREEN ── */
+    .detail-nav{display:flex;align-items:center;gap:8px;padding:.75rem 1.25rem;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0}
+    .detail-habit-info{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+    .detail-emoji{font-size:20px}
+    .detail-name{font-size:15px;font-weight:600;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .detail-phase{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;padding:2px 8px;border-radius:var(--rpill)}
+    .detail-phase.diagnosing{background:#FEF3C7;color:#92500A}
+    .detail-phase.planning{background:#DBEAFE;color:#1D4ED8}
+    .detail-phase.active{background:#D1FAE5;color:#065F46}
+    .detail-phase.completed{background:#F3F4F6;color:#374151}
+    .detail-actions{display:flex;gap:6px;margin-left:auto;flex-shrink:0}
+    .btn-finish{font-family:var(--font);font-size:12px;font-weight:500;padding:6px 12px;background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);border-radius:var(--rs);cursor:pointer;transition:var(--transition)}
+    .btn-finish:hover{background:#C8E6C9}
 
-    .phase-steps{display:flex;padding:.75rem 1rem;border-bottom:1px solid var(--border);gap:0}
-    .phase-step{flex:1;text-align:center;font-size:10px;font-weight:500;color:var(--text-3);position:relative;padding-bottom:6px}
-    .phase-step::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--border);border-radius:2px}
-    .phase-step.done{color:var(--navy)}
-    .phase-step.done::after{background:var(--navy)}
-    .phase-step.active-step{color:var(--navy-mid)}
-    .phase-step.active-step::after{background:var(--accent)}
+    /* Detail tabs */
+    .detail-tabs{display:flex;padding:0 1.25rem;background:var(--white);border-bottom:1px solid var(--border);flex-shrink:0;gap:0}
+    .dtab{font-family:var(--font);font-size:13px;font-weight:500;padding:.625rem 1rem;color:var(--text-3);border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;transition:var(--transition);white-space:nowrap}
+    .dtab:hover{color:var(--navy)}
+    .dtab.active{color:var(--navy);border-bottom-color:var(--navy)}
+    .detail-content{flex:1;overflow-y:auto;display:none}
+    .detail-content.active{display:block}
+    .detail-content::-webkit-scrollbar{width:4px}
+    .detail-content::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
 
-    .messages{padding:1rem;display:flex;flex-direction:column;gap:10px;min-height:300px;max-height:380px;overflow-y:auto}
-    .msg{display:flex;gap:8px;align-items:flex-start}
+    /* ── CHAT TAB ── */
+    .chat-pane{display:flex;flex-direction:column;height:100%}
+    /* Phase steps - clickable navigation */
+    .phase-nav{display:flex;padding:.75rem 1.25rem;gap:6px;background:var(--white);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0}
+    .phase-nav::-webkit-scrollbar{display:none}
+    .pstep{font-family:var(--font);font-size:11px;font-weight:500;padding:5px 12px;border-radius:var(--rpill);border:1px solid var(--border-s);background:var(--bg);color:var(--text-3);cursor:pointer;white-space:nowrap;transition:var(--transition)}
+    .pstep:hover{border-color:var(--accent);color:var(--navy-mid)}
+    .pstep.done{border-color:var(--accent);background:var(--accent-light);color:var(--navy)}
+    .pstep.current{border-color:var(--navy);background:var(--navy);color:#fff}
+    .pstep.locked{opacity:.4;cursor:default;pointer-events:none}
+    .messages{flex:1;overflow-y:auto;padding:1rem 1.25rem;display:flex;flex-direction:column;gap:10px}
+    .messages::-webkit-scrollbar{width:4px}
+    .messages::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
+    .phase-divider{display:flex;align-items:center;gap:8px;margin:.5rem 0}
+    .phase-divider-line{flex:1;height:1px;background:var(--border)}
+    .phase-divider-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text-3);white-space:nowrap}
+    .msg{display:flex;gap:8px;align-items:flex-start;animation:fadeup .2s ease}
+    @keyframes fadeup{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
     .msg.user{flex-direction:row-reverse}
-    .avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:2px}
-    .avatar.coach{background:var(--accent-light);color:var(--navy);border:1px solid var(--accent)}
-    .avatar.user{background:var(--navy);color:#fff}
-    .bubble{max-width:82%;padding:10px 14px;font-size:13.5px;line-height:1.7}
+    .avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;margin-top:2px;overflow:hidden}
+    .avatar.coach{background:var(--white);border:1px solid var(--accent);padding:2px}
+    .avatar.coach img{width:100%;height:100%;object-fit:contain}
+    .avatar.user{background:var(--navy);color:#fff;font-weight:500}
+    .bubble{max-width:80%;padding:10px 14px;font-size:13.5px;line-height:1.7}
     .msg.coach .bubble{background:var(--accent-lighter);border:1px solid var(--border);border-radius:4px 14px 14px 14px;color:var(--text)}
     .msg.user .bubble{background:var(--navy);color:#fff;border-radius:14px 4px 14px 14px}
-    .typing-dots{display:flex;gap:5px;padding:4px 2px;align-items:center}
+    .typing-dots{display:flex;gap:5px;padding:4px 0;align-items:center}
     .typing-dots span{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:bounce 1.2s infinite}
     .typing-dots span:nth-child(2){animation-delay:.2s}
     .typing-dots span:nth-child(3){animation-delay:.4s}
     @keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
-
-    /* INSIGHT CARD */
-    .insight-card{margin:.25rem 0;padding:1rem;background:var(--white);border:1.5px solid var(--accent);border-radius:var(--r)}
-    .insight-card h4{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:.75rem}
-    .insight-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:.5rem;font-size:13px}
-    .insight-row:last-child{margin-bottom:0}
-    .insight-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);min-width:70px;padding-top:1px}
-    .insight-val{color:var(--text);line-height:1.5}
-
-    /* PLAN CARD */
-    .plan-card{margin:.25rem 0;padding:1rem;background:var(--navy);border-radius:var(--r);color:#fff}
-    .plan-card h4{font-size:11px;font-weight:600;margin-bottom:.75rem;opacity:.65;text-transform:uppercase;letter-spacing:.08em}
-    .plan-replacement{font-size:15px;font-weight:500;line-height:1.5;margin-bottom:.75rem}
-    .plan-meta{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.5rem}
-    .plan-chip{font-size:11px;padding:3px 10px;border-radius:var(--rpill);background:rgba(255,255,255,.15);color:#fff}
-    .plan-difficulty{font-size:11px;padding:3px 10px;border-radius:var(--rpill)}
-    .plan-difficulty.easy{background:var(--green-bg);color:var(--green)}
-    .plan-difficulty.medium{background:var(--amber-bg);color:var(--amber)}
-    .plan-difficulty.hard{background:var(--red-bg);color:var(--red)}
-    .plan-why{font-size:12px;opacity:.75;line-height:1.5}
-
-    .quick-replies{display:flex;flex-wrap:wrap;gap:6px;padding:8px 1rem;border-top:1px solid var(--border)}
-    .qr{font-family:var(--font);font-size:12px;padding:5px 13px;border:1px solid var(--accent);border-radius:var(--rpill);background:var(--white);color:var(--navy);cursor:pointer}
+    /* Insight & plan cards inline */
+    .insight-card{margin:.25rem 0;padding:1rem 1.125rem;background:var(--white);border:1.5px solid var(--accent);border-radius:var(--r);max-width:82%}
+    .insight-card h4{font-size:12px;font-weight:600;color:var(--navy);margin-bottom:.625rem;text-transform:uppercase;letter-spacing:.06em}
+    .irow{display:flex;align-items:flex-start;gap:8px;margin-bottom:.375rem;font-size:13px}
+    .irow:last-child{margin-bottom:0}
+    .ilabel{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);min-width:62px;padding-top:1px}
+    .ival{color:var(--text);line-height:1.5}
+    .plan-card{margin:.25rem 0;padding:1rem 1.125rem;background:var(--navy);border-radius:var(--r);color:#fff;max-width:82%}
+    .plan-card h4{font-size:10px;font-weight:600;opacity:.6;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem}
+    .plan-text{font-size:14px;font-weight:500;line-height:1.5;margin-bottom:.625rem}
+    .plan-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.5rem}
+    .pchip{font-size:11px;padding:3px 10px;border-radius:var(--rpill);background:rgba(255,255,255,.15)}
+    .pdiff{font-size:11px;padding:3px 10px;border-radius:var(--rpill)}
+    .pdiff.easy{background:var(--green-bg);color:var(--green)}
+    .pdiff.medium{background:var(--amber-bg);color:var(--amber)}
+    .pdiff.hard{background:var(--red-bg);color:var(--red)}
+    .plan-why{font-size:12px;opacity:.7;line-height:1.5}
+    /* Chat input area */
+    .chat-input-area{flex-shrink:0;border-top:1px solid var(--border);background:var(--white)}
+    .quick-replies{display:flex;flex-wrap:wrap;gap:5px;padding:.625rem 1.25rem .375rem}
+    .qr{font-family:var(--font);font-size:12px;padding:5px 12px;border:1px solid var(--accent);border-radius:var(--rpill);background:var(--white);color:var(--navy);cursor:pointer;transition:var(--transition)}
     .qr:hover{background:var(--accent-light)}
-    .input-row{display:flex;gap:8px;padding:10px 1rem;border-top:1px solid var(--border)}
-    .input-row input{flex:1;font-family:var(--font);font-size:14px;padding:9px 13px;border:1.5px solid var(--border-s);border-radius:var(--rs);background:var(--white);color:var(--text);outline:none}
+    .input-row{display:flex;gap:8px;padding:.625rem 1.25rem .875rem}
+    .input-row input{flex:1;font-family:var(--font);font-size:14px;padding:9px 13px;border:1.5px solid var(--border-s);border-radius:var(--rs);background:var(--white);color:var(--text);outline:none;transition:border-color .15s}
     .input-row input:focus{border-color:var(--navy-mid);box-shadow:0 0 0 3px rgba(43,74,122,.1)}
-    .send-btn{font-family:var(--font);font-size:14px;font-weight:500;padding:9px 18px;background:var(--navy);color:#fff;border:none;border-radius:var(--rs);cursor:pointer}
+    .input-row input::placeholder{color:var(--text-3)}
+    .send-btn{font-family:var(--font);font-size:14px;font-weight:500;padding:9px 18px;background:var(--navy);color:#fff;border:none;border-radius:var(--rs);cursor:pointer;transition:var(--transition)}
     .send-btn:hover{background:var(--navy-mid)}
 
-    /* CHECKIN MODAL */
-    .ci-header{padding:1.25rem 1rem .75rem;border-bottom:1px solid var(--border)}
-    .ci-header h3{font-size:16px;font-weight:600;color:var(--navy)}
-    .ci-header p{font-size:13px;color:var(--text-2);margin-top:2px}
-    .ci-plan{margin:1rem;padding:.875rem 1rem;background:var(--navy);border-radius:var(--rs);color:#fff;font-size:14px;font-weight:500;line-height:1.5}
-    .ci-q{padding:.75rem 1rem;font-size:14px;font-weight:500;color:var(--navy);text-align:center}
-    .ci-btns{display:flex;gap:10px;padding:.5rem 1rem 1.25rem;justify-content:center}
-    .ci-yes{font-family:var(--font);font-size:14px;font-weight:500;padding:10px 28px;background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border);border-radius:var(--rs);cursor:pointer}
+    /* ── TRACKER TAB ── */
+    .tracker-pane{padding:1.25rem}
+    .tracker-header{margin-bottom:1.25rem}
+    .tracker-header h3{font-size:16px;font-weight:600;color:var(--navy);margin-bottom:4px}
+    .tracker-header p{font-size:13px;color:var(--text-2)}
+    /* Today checkin */
+    .checkin-box{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-bottom:1.25rem;box-shadow:var(--shadow)}
+    .checkin-box h4{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:.5rem}
+    .checkin-plan-text{font-size:13px;color:var(--text-2);line-height:1.6;padding:.625rem .875rem;background:var(--accent-lighter);border-radius:var(--rs);border-left:3px solid var(--accent);margin-bottom:.875rem}
+    .checkin-q{font-size:14px;font-weight:500;color:var(--navy);margin-bottom:.75rem;text-align:center}
+    .checkin-btns{display:flex;gap:10px;justify-content:center;margin-bottom:.5rem}
+    .ci-yes{font-family:var(--font);font-size:14px;font-weight:500;padding:10px 28px;background:var(--green-bg);color:var(--green);border:1.5px solid var(--green-border);border-radius:var(--rs);cursor:pointer;transition:var(--transition)}
     .ci-yes:hover{background:#C8E6C9}
-    .ci-no{font-family:var(--font);font-size:14px;font-weight:500;padding:10px 28px;background:var(--red-bg);color:var(--red);border:1.5px solid var(--red-border);border-radius:var(--rs);cursor:pointer}
+    .ci-no{font-family:var(--font);font-size:14px;font-weight:500;padding:10px 28px;background:var(--red-bg);color:var(--red);border:1.5px solid var(--red-border);border-radius:var(--rs);cursor:pointer;transition:var(--transition)}
     .ci-no:hover{background:#FFCDD2}
-    .ci-history{padding:0 1rem 1rem}
-    .ci-history h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:.75rem}
-    .ci-dots{display:flex;gap:6px;flex-wrap:wrap}
-    .ci-dot{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;border:1.5px solid var(--border)}
-    .ci-dot.done{background:var(--green-bg);border-color:var(--green-border)}
-    .ci-dot.miss{background:var(--red-bg);border-color:var(--red-border)}
-    .ci-dot.empty{background:var(--bg);color:var(--text-3)}
-    .ci-strength{padding:0 1rem 1.5rem}
-    .ci-strength h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);margin-bottom:.5rem}
-    .big-bar{height:10px;background:var(--accent-light);border-radius:5px;overflow:hidden;margin-bottom:4px}
-    .big-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--navy-mid));border-radius:5px;transition:width .6s ease}
-    .score-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text-2)}
+    .already-done{font-size:13px;color:var(--green);text-align:center;font-weight:500;padding:.5rem}
+    /* Strength */
+    .strength-box{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;margin-bottom:1.25rem;box-shadow:var(--shadow)}
+    .strength-box h4{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:.75rem}
+    .strength-score{font-size:42px;font-weight:600;color:var(--navy);line-height:1}
+    .strength-sublabel{font-size:13px;color:var(--text-2);margin-top:2px;margin-bottom:.875rem}
+    .big-bar{height:12px;background:var(--accent-light);border-radius:6px;overflow:hidden;margin-bottom:.5rem}
+    .big-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--navy-mid));border-radius:6px;transition:width .6s ease}
+    /* Calendar */
+    .calendar-box{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;box-shadow:var(--shadow)}
+    .calendar-box h4{font-size:13px;font-weight:600;color:var(--navy);margin-bottom:.875rem}
+    .cal-grid{display:flex;flex-wrap:wrap;gap:4px}
+    .cal-dot{width:22px;height:22px;border-radius:5px;background:var(--bg);border:1px solid var(--border-s);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text-3);position:relative}
+    .cal-dot.done{background:var(--green-bg);border-color:var(--green-border);color:var(--green)}
+    .cal-dot.miss{background:var(--red-bg);border-color:var(--red-border);color:var(--red)}
+    .cal-dot[title]:hover::after{content:attr(title);position:absolute;bottom:26px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;white-space:nowrap;pointer-events:none;z-index:10}
+    .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:1rem}
+    .stat-box{background:var(--bg);border-radius:var(--rs);padding:.75rem;text-align:center}
+    .stat-num{font-size:20px;font-weight:600;color:var(--navy)}
+    .stat-label{font-size:10px;color:var(--text-3);margin-top:2px;text-transform:uppercase;letter-spacing:.05em}
+
+    /* ── INSIGHTS TAB ── */
+    .insights-pane{padding:1.25rem;display:flex;flex-direction:column;gap:1rem}
+    .insight-full{background:var(--white);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;box-shadow:var(--shadow)}
+    .insight-full h3{font-size:14px;font-weight:600;color:var(--navy);margin-bottom:1rem;display:flex;align-items:center;gap:6px}
+    .insight-full-row{display:flex;align-items:flex-start;gap:10px;padding:.75rem 0;border-bottom:1px solid var(--border)}
+    .insight-full-row:last-child{border-bottom:none;padding-bottom:0}
+    .ifl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);min-width:80px;padding-top:2px}
+    .ifv{font-size:14px;color:var(--text);line-height:1.5}
+    .plan-full{background:var(--navy);border-radius:var(--r);padding:1.25rem;color:#fff}
+    .plan-full h3{font-size:14px;font-weight:600;opacity:.7;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.875rem;display:flex;align-items:center;gap:6px}
+    .plan-full-text{font-size:16px;font-weight:500;line-height:1.5;margin-bottom:.875rem}
+    .plan-full-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.875rem}
+    .plan-full-why{font-size:13px;opacity:.75;line-height:1.6;padding:.75rem;background:rgba(255,255,255,.08);border-radius:var(--rs)}
+    .no-insight{text-align:center;padding:2rem 1rem;color:var(--text-3)}
+    .no-insight p{font-size:14px;margin-top:.5rem}
+
+    /* ── HISTORY SCREEN ── */
+    .history-scroll{flex:1;overflow-y:auto;padding:1.25rem}
+    .history-scroll::-webkit-scrollbar{width:4px}
+    .history-scroll::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
+    .history-empty{text-align:center;padding:3rem 1rem;color:var(--text-3)}
+    .history-empty-icon{font-size:48px;margin-bottom:.75rem}
+    .history-empty p{font-size:14px}
+    .history-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;max-width:900px;margin:0 auto}
+
+    /* ── ONBOARDING MODAL ── */
+    .ob-overlay{display:none;position:fixed;inset:0;background:rgba(27,45,79,.5);z-index:200;align-items:center;justify-content:center;padding:1rem}
+    .ob-overlay.show{display:flex}
+    .ob-modal{background:var(--white);border-radius:var(--r);padding:2rem;max-width:480px;width:100%;box-shadow:var(--shadow-lg);position:relative}
+    .ob-modal h2{font-size:20px;font-weight:600;color:var(--navy);margin-bottom:4px}
+    .ob-modal p{font-size:13px;color:var(--text-2);margin-bottom:1.25rem;line-height:1.6}
+    .ob-disclaimer{font-size:11px;color:var(--text-3);line-height:1.6;padding:.625rem .875rem;background:var(--accent-lighter);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:1.25rem}
+    .ob-label{font-size:14px;font-weight:500;color:var(--navy);margin-bottom:.625rem}
+    .ob-input-row{display:flex;gap:8px;margin-bottom:.875rem}
+    .ob-input-row input{flex:1;font-family:var(--font);font-size:14px;padding:10px 13px;border:1.5px solid var(--border-s);border-radius:var(--rs);background:var(--white);color:var(--text);outline:none}
+    .ob-input-row input:focus{border-color:var(--navy-mid);box-shadow:0 0 0 3px rgba(43,74,122,.1)}
+    .ob-input-row input::placeholder{color:var(--text-3)}
+    .ob-examples{display:flex;flex-wrap:wrap;gap:5px}
+    .ob-ex{font-size:12px;padding:4px 11px;border:1px solid var(--border-s);border-radius:var(--rpill);background:var(--white);color:var(--text-2);cursor:pointer;transition:var(--transition)}
+    .ob-ex:hover{background:var(--accent-light);border-color:var(--accent);color:var(--navy)}
+    .ob-close{position:absolute;top:12px;right:14px;font-size:20px;cursor:pointer;color:var(--text-3);background:none;border:none;line-height:1}
+
+    /* ── EMPTY STATE ── */
+    .empty-home{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 1rem;text-align:center;max-width:400px;margin:0 auto}
+    .empty-home-icon{font-size:52px;margin-bottom:1rem}
+    .empty-home h2{font-size:20px;font-weight:600;color:var(--navy);margin-bottom:.5rem}
+    .empty-home p{font-size:14px;color:var(--text-2);line-height:1.6;margin-bottom:1.25rem}
+
+    /* ── TOAST ── */
+    .toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:var(--navy);color:#fff;font-size:13px;font-weight:500;padding:.625rem 1.25rem;border-radius:var(--rpill);z-index:999;transition:transform .3s ease;white-space:nowrap;box-shadow:var(--shadow-lg)}
+    .toast.show{transform:translateX(-50%) translateY(0)}
   </style>
 </head>
 <body>
 
-<!-- ONBOARDING -->
-<div class="onboard" id="onboard">
-  <div class="ob-brand">🔄 Rewire</div>
-  <div class="ob-tag">Break the loop. Build a better one.</div>
-  <div class="ob-disclaimer"><strong>Note:</strong> Rewire is for general habit awareness and behavioral coaching only. It is not a substitute for professional medical or psychological support. If you are experiencing a clinical condition, please consult a qualified professional.</div>
-  <div class="ob-label">What habit do you want to work on?</div>
-  <div class="ob-row">
-    <input type="text" id="habit-input" placeholder="e.g. midnight snacking, doomscrolling..." onkeydown="if(event.key==='Enter') startHabit()"/>
-    <button class="btn-start" onclick="startHabit()">Start →</button>
+<!-- ── SCREEN 1: HOME ── -->
+<div class="screen active" id="screen-home">
+  <div class="topnav">
+    <div class="topnav-brand">
+      <img class="topnav-logo" src="data:image/png;base64,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" alt="Rewire"/>
+      <span class="topnav-name">Rewire</span>
+    </div>
+    <div class="topnav-right">
+      <button class="btn-icon" onclick="goHistory()" title="Past habits">📋</button>
+      <button class="btn-primary" onclick="openNewHabit()">Break a habit</button>
+    </div>
   </div>
-  <div class="ob-examples">
-    <span class="ob-ex" onclick="setEx('midnight snacking')">🌙 Midnight snacking</span>
-    <span class="ob-ex" onclick="setEx('doomscrolling before bed')">📱 Doomscrolling</span>
-    <span class="ob-ex" onclick="setEx('procrastinating on work tasks')">⏳ Procrastinating</span>
-    <span class="ob-ex" onclick="setEx('stress eating after work')">😰 Stress eating</span>
-    <span class="ob-ex" onclick="setEx('skipping workouts')">🏃 Skipping workouts</span>
+  <div class="home-scroll" id="home-scroll">
+    <!-- populated by renderHome() -->
   </div>
 </div>
 
-<!-- KANBAN BOARD -->
-<div class="kanban" id="kanban">
-  <div class="header">
-    <div>
-      <div class="brand">🔄 Rewire</div>
-      <div class="brand-sub">Your habit board</div>
+<!-- ── SCREEN 2: HABIT DETAIL ── -->
+<div class="screen" id="screen-detail">
+  <div class="detail-nav">
+    <button class="btn-back" onclick="goHome()">← Back</button>
+    <div class="detail-habit-info">
+      <span class="detail-emoji" id="det-emoji"></span>
+      <span class="detail-name" id="det-name"></span>
+      <span class="detail-phase diagnosing" id="det-phase"></span>
     </div>
-    <button class="btn-new" onclick="showOnboard()">+ New habit</button>
+    <div class="detail-actions">
+      <button class="btn-finish" id="btn-finish" onclick="finishHabit()">I've beaten this</button>
+    </div>
   </div>
-  <div class="kanban-cols">
-    <div><div class="col-header"><span class="col-dot diagnosing"></span>Diagnosing</div><div class="col-body" id="col-diagnosing"></div></div>
-    <div><div class="col-header"><span class="col-dot planning"></span>Planning</div><div class="col-body" id="col-planning"></div></div>
-    <div><div class="col-header"><span class="col-dot active"></span>Active</div><div class="col-body" id="col-active"></div></div>
-    <div><div class="col-header"><span class="col-dot completed"></span>Completed</div><div class="col-body" id="col-completed"></div></div>
+  <div class="detail-tabs">
+    <button class="dtab active" onclick="switchTab('chat')">💬 Coaching</button>
+    <button class="dtab" onclick="switchTab('tracker')" id="tab-tracker">📊 Tracker</button>
+    <button class="dtab" onclick="switchTab('insights')" id="tab-insights">🧠 Insights</button>
+  </div>
+
+  <!-- COACHING TAB -->
+  <div class="detail-content active" id="tab-content-chat">
+    <div class="chat-pane">
+      <div class="phase-nav" id="phase-nav">
+        <button class="pstep current" id="pstep-discovery" onclick="scrollToPhase('discovery')">🔍 Discovery</button>
+        <button class="pstep locked" id="pstep-diagnosis" onclick="scrollToPhase('diagnosis')">🧠 Diagnosis</button>
+        <button class="pstep locked" id="pstep-reframe" onclick="scrollToPhase('reframe')">💡 Reframe</button>
+        <button class="pstep locked" id="pstep-plan" onclick="scrollToPhase('plan')">🎯 Your Plan</button>
+      </div>
+      <div class="messages" id="messages"></div>
+      <div class="chat-input-area">
+        <div class="quick-replies" id="quick-replies"></div>
+        <div class="input-row">
+          <input type="text" id="msg-input" placeholder="Type your response..." onkeydown="if(event.key==='Enter')sendMsg()"/>
+          <button class="send-btn" onclick="sendMsg()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRACKER TAB -->
+  <div class="detail-content" id="tab-content-tracker">
+    <div class="tracker-pane" id="tracker-pane">
+      <!-- populated by renderTracker() -->
+    </div>
+  </div>
+
+  <!-- INSIGHTS TAB -->
+  <div class="detail-content" id="tab-content-insights">
+    <div class="insights-pane" id="insights-pane">
+      <!-- populated by renderInsights() -->
+    </div>
   </div>
 </div>
 
-<!-- CHAT MODAL -->
-<div class="modal-overlay" id="chat-overlay">
-  <div class="modal">
-    <button class="modal-close" onclick="closeChat()">×</button>
-    <div class="chat-modal-header">
-      <div class="chat-habit-name" id="chat-habit-name"></div>
-      <span class="chat-phase-badge diagnosing" id="chat-phase-badge">Diagnosing</span>
+<!-- ── SCREEN 3: HISTORY ── -->
+<div class="screen" id="screen-history">
+  <div class="topnav">
+    <button class="btn-back" onclick="goHome()">← Back</button>
+    <span style="font-size:15px;font-weight:600;color:var(--navy)">Past habits</span>
+  </div>
+  <div class="history-scroll">
+    <div id="history-content" style="max-width:900px;margin:0 auto"></div>
+  </div>
+</div>
+
+<!-- ── ONBOARDING MODAL ── -->
+<div class="ob-overlay" id="ob-overlay">
+  <div class="ob-modal">
+    <button class="ob-close" onclick="closeOb()">×</button>
+    <h2>What habit do you want to break?</h2>
+    <p>Describe it in your own words — no judgment. Rewire will figure out the root cause and build a replacement that actually sticks.</p>
+    <div class="ob-disclaimer"><strong>Note:</strong> Rewire is for general habit awareness only — not a substitute for professional medical or psychological support.</div>
+    <div class="ob-label">What habit do you want to work on?</div>
+    <div class="ob-input-row">
+      <input type="text" id="ob-input" placeholder="e.g. midnight snacking, doomscrolling..." onkeydown="if(event.key==='Enter')createHabit()"/>
+      <button class="btn-primary" onclick="createHabit()">Start →</button>
     </div>
-    <div class="phase-steps">
-      <div class="phase-step active-step" id="step-1">🔍 Discovery</div>
-      <div class="phase-step" id="step-2">🧠 Diagnosis</div>
-      <div class="phase-step" id="step-3">💡 Reframe</div>
-      <div class="phase-step" id="step-4">🎯 Your Plan</div>
-    </div>
-    <div class="messages" id="messages"></div>
-    <div class="quick-replies" id="quick-replies"></div>
-    <div class="input-row">
-      <input type="text" id="msg-input" placeholder="Type your response..." onkeydown="if(event.key==='Enter') sendMsg()"/>
-      <button class="send-btn" onclick="sendMsg()">Send</button>
+    <div class="ob-examples">
+      <span class="ob-ex" onclick="setOb('midnight snacking')">🌙 Midnight snacking</span>
+      <span class="ob-ex" onclick="setOb('doomscrolling before bed')">📱 Doomscrolling</span>
+      <span class="ob-ex" onclick="setOb('procrastinating on work')">⏳ Procrastinating</span>
+      <span class="ob-ex" onclick="setOb('stress eating after work')">😰 Stress eating</span>
+      <span class="ob-ex" onclick="setOb('skipping workouts')">🏃 Skipping workouts</span>
+      <span class="ob-ex" onclick="setOb('impulse buying online')">💸 Impulse buying</span>
     </div>
   </div>
 </div>
 
-<!-- CHECKIN MODAL -->
-<div class="modal-overlay" id="checkin-overlay">
-  <div class="modal">
-    <button class="modal-close" onclick="closeCheckin()">×</button>
-    <div class="ci-header">
-      <h3 id="ci-habit-name"></h3>
-      <p>Daily check-in</p>
-    </div>
-    <div class="ci-plan" id="ci-plan-text"></div>
-    <div class="ci-q">Did you try your replacement habit today?</div>
-    <div class="ci-btns">
-      <button class="ci-yes" onclick="logCheckin(true)">✅ Yes, I did it!</button>
-      <button class="ci-no" onclick="logCheckin(false)">❌ Not today</button>
-    </div>
-    <div class="ci-history">
-      <h4>Your last 7 days</h4>
-      <div class="ci-dots" id="ci-dots"></div>
-    </div>
-    <div class="ci-strength">
-      <h4>Habit strength</h4>
-      <div class="big-bar"><div class="big-fill" id="ci-fill" style="width:0%"></div></div>
-      <div class="score-row"><span id="ci-label">Keep going!</span><span id="ci-num">0%</span></div>
-    </div>
-  </div>
-</div>
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <script>
-let habits = JSON.parse(localStorage.getItem('rewire_habits')||'[]');
-let activeId = null;
-let chatHistory = [];
-let msgCount = 0;
-
-const EMOJIS = ['🌙','📱','⏳','😰','🏃','🍕','💸','😤','🛌','☕','🎮','🍺'];
-const PHASE_LABELS = {diagnosing:'Diagnosing',planning:'Planning',active:'Active',completed:'Completed'};
+// ── CONSTANTS ──
+const ICON_URI = 'data:image/png;base64,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';
+const EMOJIS = ['🌙','📱','⏳','😰','🏃','🍕','💸','😤','🛌','☕','🎮','📺','🍺','😬','🧁'];
+const PHASE_LABELS = {diagnosing:'Diagnosing',planning:'Planning',active:'Active',completed:'Completed',history:'Completed'};
 
 const SYSTEM_PROMPT = `You are Rewire, a warm and direct AI habit coach. You help users break bad habits using BJ Fogg's Tiny Habits and James Clear's habit loop theory (cue → routine → reward).
 
 STYLE RULES — follow strictly:
 - MAX 3 sentences per message
 - Use 1-2 relevant emojis per message
-- Bold the key insight using **double asterisks** e.g. **this is important**
-- Be conversational, warm, never clinical
+- Bold the key insight using **double asterisks**
+- Be conversational and warm, never clinical
 - Ask only ONE question per message
 
-CONVERSATION FLOW — 5 stages:
+CONVERSATION FLOW — follow this exact sequence:
 
-STAGE 1 - DISCOVERY (2 exchanges): Ask about when and where the habit happens. Be curious and warm.
+STAGE 1 - DISCOVERY (2 exchanges): Ask about when and where the habit happens. Be specific and curious.
 
-STAGE 2 - DIAGNOSIS (2 exchanges): Ask how the user feels right before the habit. Identify the emotional trigger and underlying need (stress relief, boredom, reward, comfort, etc.)
+STAGE 2 - DIAGNOSIS (2 exchanges): Ask how the user feels right BEFORE the habit. Identify the emotional trigger and underlying need (stress relief, boredom, reward, comfort, avoidance, etc.)
 
-STAGE 3 - REFRAME (1 exchange): Explain their cue→routine→reward loop in 2 warm sentences. Ask if it resonates.
+STAGE 3 - REFRAME (1 exchange): In 2 warm sentences, explain their cue→routine→reward loop. End by asking if that resonates.
 
-STAGE 4 - INSIGHT SUMMARY: After they confirm the reframe, output ONLY this exact JSON (no other text, no markdown):
-{"type":"insight","trigger":"one short phrase","need":"one short phrase","reward":"one short phrase"}
+STAGE 4 - INSIGHT SUMMARY: Once user confirms the reframe, output ONLY this raw JSON — no other text, no markdown backticks:
+{"type":"insight","trigger":"short phrase","need":"short phrase","reward":"short phrase"}
 
-STAGE 5 - PLAN: After the insight, output ONLY this exact JSON (no other text):
-{"type":"plan","replacement":"one specific concrete tiny habit, 1 sentence","difficulty":"easy","cue":"the specific trigger moment","why":"one sentence on why this works using BJ Fogg logic"}
+STAGE 5 - PLAN: Immediately after the insight JSON, output ONLY this raw JSON — no other text:
+{"type":"plan","replacement":"one specific concrete tiny habit, 1 sentence","difficulty":"easy","cue":"the specific trigger moment","why":"one sentence on why this works based on BJ Fogg logic"}
 
-After the plan JSON, send one warm follow-up message encouraging them and reminding them to check in daily on their Rewire board.`;
+After the plan JSON, send ONE warm follow-up message (not JSON) encouraging them and reminding them to check in daily.`;
 
-function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
-function save(){localStorage.setItem('rewire_habits',JSON.stringify(habits))}
-function getH(id){return habits.find(h=>h.id===id)}
-function scoreLabel(s){
-  if(s>=80)return'🔥 Strong habit forming!';
-  if(s>=50)return'📈 Building momentum';
-  if(s>=25)return'🌱 Getting started';
-  return'💪 Keep showing up!';
+// ── STATE ──
+let habits = JSON.parse(localStorage.getItem('rewire_v3') || '[]');
+let activeId = null;
+let chatHistory = [];
+let msgCount = 0;
+let currentPhase = 'discovery';
+let phaseMarkers = {}; // phase name -> message index for scrolling
+
+function save() { localStorage.setItem('rewire_v3', JSON.stringify(habits)); }
+function getH(id) { return habits.find(h => h.id === id); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,5); }
+
+function scoreLabel(s) {
+  if (s >= 80) return '🔥 Strong habit forming!';
+  if (s >= 50) return '📈 Building momentum';
+  if (s >= 25) return '🌱 Just getting started';
+  return '💪 Keep showing up!';
 }
 
-function setEx(t){document.getElementById('habit-input').value=t}
-
-function showOnboard(){
-  document.getElementById('onboard').style.display='';
-  document.getElementById('kanban').style.display='none';
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-function startHabit(){
-  const name=document.getElementById('habit-input').value.trim();
-  if(!name)return;
-  const h={id:uid(),name,emoji:EMOJIS[Math.floor(Math.random()*EMOJIS.length)],phase:'diagnosing',chatHistory:[],msgCount:0,insight:null,plan:null,checkins:[],strength:0,createdAt:Date.now()};
-  habits.push(h);save();
-  document.getElementById('onboard').style.display='none';
-  document.getElementById('kanban').style.display='';
-  renderBoard();
-  openChat(h.id,true);
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
-function renderBoard(){
-  ['diagnosing','planning','active','completed'].forEach(phase=>{
-    const col=document.getElementById('col-'+phase);
-    const items=habits.filter(h=>h.phase===phase);
-    if(!items.length){col.innerHTML='<div class="empty-col">No habits here yet</div>';return;}
-    col.innerHTML=items.map(h=>{
-      const streakDots=Array.from({length:7},(_,i)=>{
-        const ci=h.checkins[h.checkins.length-7+i];
-        if(ci===undefined)return'<div class="streak-dot"></div>';
-        return`<div class="streak-dot ${ci?'done':'miss'}">${ci?'✓':'✗'}</div>`;
-      }).join('');
-      const planHtml=h.plan?`<div class="hcard-plan">🎯 ${h.plan.replacement}</div>`:'';
-      const strengthHtml=h.plan?`<div class="hcard-strength"><div class="strength-label"><span>Habit strength</span><span>${h.strength}%</span></div><div class="strength-bar"><div class="strength-fill" style="width:${h.strength}%"></div></div></div><div class="hcard-streak">${streakDots}</div>`:'';
-      const onclick=(h.phase==='active'||h.phase==='completed')?`openCheckin('${h.id}')`:`openChat('${h.id}',false)`;
-      return`<div class="hcard" onclick="${onclick}"><div class="hcard-top"><div class="hcard-emoji">${h.emoji}</div><div><div class="hcard-name">${h.name}</div><div class="hcard-phase ${h.phase}">${PHASE_LABELS[h.phase]}</div></div></div>${planHtml}${strengthHtml}</div>`;
-    }).join('');
-  });
+// ── NAVIGATION ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
 }
 
-function openChat(id,isNew){
-  activeId=id;
-  const h=getH(id);
-  chatHistory=[...h.chatHistory];
-  msgCount=h.msgCount||0;
-  document.getElementById('chat-habit-name').textContent=h.emoji+' '+h.name;
-  document.getElementById('messages').innerHTML='';
-  document.getElementById('quick-replies').innerHTML='';
-  document.getElementById('msg-input').value='';
-  document.getElementById('chat-overlay').classList.add('show');
-  updateChatUI(h.phase,msgCount);
-  chatHistory.forEach(m=>{
-    if(m.role==='user'){addMsg('user',m.content);}
-    else{tryRenderSpecial(m.content);}
-  });
-  if(isNew){sendToAI('Hi! I want to work on this habit: '+h.name);}
-  else{updateQR(msgCount);}
-}
+function goHome() { showScreen('home'); renderHome(); }
+function goHistory() { showScreen('history'); renderHistory(); }
 
-function closeChat(){document.getElementById('chat-overlay').classList.remove('show');activeId=null;}
-
-function tryRenderSpecial(content){
-  try{
-    const p=JSON.parse(content.trim());
-    if(p.type==='insight'){renderInsightCard(p);return;}
-    if(p.type==='plan'){renderPlanCard(p);return;}
-  }catch(e){}
-  addMsg('coach',content);
-}
-
-async function sendToAI(userMsg){
-  const h=getH(activeId);
-  if(!h)return;
-  const isGreeting=userMsg.startsWith('Hi! I want to work on');
-  if(!isGreeting){addMsg('user',userMsg);}
-  chatHistory.push({role:'user',content:userMsg});
-  showTyping();
-  document.getElementById('msg-input').disabled=true;
-  try{
-    const resp=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:chatHistory,habitName:h.name,systemPrompt:SYSTEM_PROMPT})});
-    if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error(e.error||'Error '+resp.status);}
-    const data=await resp.json();
-    const reply=data.reply;
-    chatHistory.push({role:'assistant',content:reply});
-    msgCount+=2;
-    hideTyping();
-    try{
-      const p=JSON.parse(reply.trim());
-      if(p.type==='insight'){h.insight=p;h.phase='planning';renderInsightCard(p);}
-      else if(p.type==='plan'){h.plan=p;h.phase='active';renderPlanCard(p);}
-      else{addMsg('coach',reply);}
-    }catch(e){addMsg('coach',reply);}
-    h.chatHistory=[...chatHistory];
-    h.msgCount=msgCount;
-    save();renderBoard();
-    updateChatUI(h.phase,msgCount);
-    updateQR(msgCount);
-  }catch(err){
-    hideTyping();
-    addMsg('coach','⚠️ Something went wrong: '+err.message+'. Please try again.');
+// ── HOME ──
+function renderHome() {
+  const scroll = document.getElementById('home-scroll');
+  const active = habits.filter(h => h.phase !== 'history');
+  
+  if (active.length === 0) {
+    scroll.innerHTML = `<div class="empty-home">
+      <div class="empty-home-icon">🔄</div>
+      <h2>What's the loop you want to break?</h2>
+      <p>Rewire helps you understand <em>why</em> a habit exists — then builds a smarter replacement.</p>
+      <button class="btn-primary" onclick="openNewHabit()" style="font-size:14px;padding:10px 24px">Start here →</button>
+    </div>`;
+    return;
   }
-  document.getElementById('msg-input').disabled=false;
+
+  // Dashboard stats
+  const total = active.length;
+  const activeCount = active.filter(h => h.phase === 'active').length;
+  const totalCheckins = active.reduce((sum, h) => sum + h.checkins.filter(Boolean).length, 0);
+  const avgStrength = active.length ? Math.round(active.reduce((s,h) => s+h.strength,0)/active.length) : 0;
+
+  let html = `<div class="dash-row">
+    <div class="dash-card"><div class="dash-emoji">🎯</div><div class="dash-num">${total}</div><div class="dash-label">Habits tracked</div></div>
+    <div class="dash-card"><div class="dash-emoji">⚡</div><div class="dash-num">${activeCount}</div><div class="dash-label">Active now</div></div>
+    <div class="dash-card"><div class="dash-emoji">✅</div><div class="dash-num">${totalCheckins}</div><div class="dash-label">Check-ins done</div></div>
+    <div class="dash-card"><div class="dash-emoji">💪</div><div class="dash-num">${avgStrength}%</div><div class="dash-label">Avg strength</div></div>
+  </div>`;
+
+  html += `<div class="section-header"><span class="section-title">Your habits</span></div>`;
+  html += `<div class="habits-grid">`;
+
+  active.forEach(h => { html += renderCard(h); });
+
+  html += `<div class="hcard-new" onclick="openNewHabit()">
+    <div class="hcard-new-icon">+</div>
+    <div class="hcard-new-label">Break a habit</div>
+  </div></div>`;
+
+  scroll.innerHTML = html;
+}
+
+function renderCard(h) {
+  const streakDots = Array.from({length:7}, (_,i) => {
+    const ci = h.checkins[h.checkins.length-7+i];
+    if (ci === undefined) return '<div class="sdot"></div>';
+    return `<div class="sdot ${ci?'done':'miss'}"></div>`;
+  }).join('');
+  const planHtml = h.plan ? `<div class="hcard-plan">🎯 ${h.plan.replacement}</div>` : '';
+  const strengthHtml = h.plan ? `
+    <div class="hcard-stats">
+      <div class="hcard-streak-dots">${streakDots}</div>
+      <span class="hcard-score">${h.strength}%</span>
+    </div>
+    <div class="mini-bar"><div class="mini-fill" style="width:${h.strength}%"></div></div>` : '';
+  return `<div class="hcard" onclick="openDetail('${h.id}')">
+    <div class="hcard-accent ${h.phase}"></div>
+    <div class="hcard-top">
+      <div class="hcard-emoji">${h.emoji}</div>
+      <div class="hcard-info">
+        <div class="hcard-name">${h.name}</div>
+        <span class="hcard-phase ${h.phase}">${PHASE_LABELS[h.phase]||h.phase}</span>
+      </div>
+    </div>
+    ${planHtml}${strengthHtml}
+  </div>`;
+}
+
+// ── ONBOARDING ──
+function openNewHabit() {
+  document.getElementById('ob-input').value = '';
+  document.getElementById('ob-overlay').classList.add('show');
+  setTimeout(() => document.getElementById('ob-input').focus(), 100);
+}
+function closeOb() { document.getElementById('ob-overlay').classList.remove('show'); }
+function setOb(t) { document.getElementById('ob-input').value = t; document.getElementById('ob-input').focus(); }
+
+function createHabit() {
+  const name = document.getElementById('ob-input').value.trim();
+  if (!name) return;
+  closeOb();
+  const h = {
+    id: uid(), name,
+    emoji: EMOJIS[Math.floor(Math.random()*EMOJIS.length)],
+    phase: 'diagnosing',
+    chatHistory: [], msgCount: 0,
+    insight: null, plan: null,
+    checkins: [], checkinDates: [],
+    strength: 0, createdAt: Date.now(),
+    finishedAt: null
+  };
+  habits.push(h); save();
+  openDetail(h.id, true);
+}
+
+// ── DETAIL SCREEN ──
+function openDetail(id, isNew) {
+  activeId = id;
+  const h = getH(id);
+  chatHistory = [...h.chatHistory];
+  msgCount = h.msgCount || 0;
+  phaseMarkers = h.phaseMarkers || {};
+
+  // Update nav
+  document.getElementById('det-emoji').textContent = h.emoji;
+  document.getElementById('det-name').textContent = h.name;
+  const phBadge = document.getElementById('det-phase');
+  phBadge.textContent = PHASE_LABELS[h.phase] || h.phase;
+  phBadge.className = 'detail-phase ' + h.phase;
+
+  // Show/hide finish button
+  document.getElementById('btn-finish').style.display = (h.phase === 'active') ? '' : 'none';
+
+  // Switch to chat tab
+  switchTab('chat');
+  showScreen('detail');
+
+  // Render chat
+  renderChatMessages();
+  updatePhaseSteps();
+
+  if (isNew) {
+    sendToAI('Hi! I want to work on this habit: ' + h.name);
+  } else {
+    // Generate QR based on last coach message
+    const lastCoach = chatHistory.filter(m => m.role === 'assistant').slice(-1)[0];
+    updateQR(msgCount, lastCoach ? lastCoach.content : '');
+  }
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.dtab').forEach((t,i) => {
+    const tabs = ['chat','tracker','insights'];
+    t.classList.toggle('active', tabs[i] === tab);
+  });
+  document.querySelectorAll('.detail-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-content-' + tab).classList.add('active');
+  if (tab === 'tracker') renderTracker();
+  if (tab === 'insights') renderInsightsTab();
+}
+
+// ── PHASE NAVIGATION ──
+function updatePhaseSteps() {
+  const phases = ['discovery','diagnosis','reframe','plan'];
+  const phaseOrder = {diagnosing:0, planning:1, active:2, completed:3};
+  const h = getH(activeId);
+  if (!h) return;
+
+  phases.forEach((p, i) => {
+    const btn = document.getElementById('pstep-' + p);
+    if (!btn) return;
+    const hasMarker = phaseMarkers[p] !== undefined;
+    const isCurrent = currentPhase === p;
+    if (isCurrent) { btn.className = 'pstep current'; }
+    else if (hasMarker) { btn.className = 'pstep done'; }
+    else { btn.className = 'pstep locked'; }
+  });
+}
+
+function scrollToPhase(phase) {
+  const idx = phaseMarkers[phase];
+  if (idx === undefined) return;
+  const msgs = document.getElementById('messages');
+  const dividers = msgs.querySelectorAll('.phase-divider');
+  const phaseNames = ['discovery','diagnosis','reframe','plan'];
+  const phaseIdx = phaseNames.indexOf(phase);
+  if (dividers[phaseIdx]) {
+    dividers[phaseIdx].scrollIntoView({behavior:'smooth', block:'start'});
+  }
+}
+
+// ── CHAT RENDERING ──
+function renderChatMessages() {
+  const msgs = document.getElementById('messages');
+  msgs.innerHTML = '';
+  phaseMarkers = {};
+  let msgIdx = 0;
+  let lastPhase = null;
+  const phaseOrder = ['discovery','diagnosis','reframe','plan'];
+  let phaseIdx = 0;
+
+  // Add discovery divider at start
+  addPhaseDivider('discovery');
+  phaseMarkers['discovery'] = 0;
+
+  chatHistory.forEach((m, i) => {
+    // Check if we should insert a phase divider
+    if (m.role === 'assistant') {
+      try {
+        const p = JSON.parse(m.content.trim());
+        if (p.type === 'insight') {
+          addPhaseDivider('reframe');
+          phaseMarkers['reframe'] = i;
+          renderInsightCardInline(p);
+          return;
+        }
+        if (p.type === 'plan') {
+          addPhaseDivider('plan');
+          phaseMarkers['plan'] = i;
+          renderPlanCardInline(p);
+          return;
+        }
+      } catch(e) {}
+
+      // Insert diagnosis divider after 4th message
+      if (i === 4 && !phaseMarkers['diagnosis']) {
+        addPhaseDivider('diagnosis');
+        phaseMarkers['diagnosis'] = i;
+      }
+    }
+    if (m.role === 'user') addMsgEl('user', m.content);
+    else addMsgEl('coach', m.content);
+  });
+
+  msgs.scrollTop = msgs.scrollHeight;
+  updatePhaseSteps();
+}
+
+function addPhaseDivider(phase) {
+  const labels = {discovery:'🔍 Discovery',diagnosis:'🧠 Diagnosis',reframe:'💡 Reframe',plan:'🎯 Your Plan'};
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'phase-divider';
+  div.innerHTML = `<div class="phase-divider-line"></div><div class="phase-divider-label">${labels[phase]||phase}</div><div class="phase-divider-line"></div>`;
+  msgs.appendChild(div);
+}
+
+function addMsgEl(role, text) {
+  const msgs = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  const av = document.createElement('div');
+  av.className = 'avatar ' + (role==='coach'?'coach':'user');
+  if (role === 'coach') {
+    av.innerHTML = `<img src="${ICON_URI}" alt="RW"/>`;
+  } else {
+    av.textContent = 'You';
+  }
+  const bub = document.createElement('div');
+  bub.className = 'bubble';
+  bub.innerHTML = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  div.appendChild(av); div.appendChild(bub);
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function renderInsightCardInline(d) {
+  const msgs = document.getElementById('messages');
+  const c = document.createElement('div');
+  c.className = 'insight-card';
+  c.innerHTML = `<h4>🧠 Your habit loop</h4>
+    <div class="irow"><span class="ilabel">🎯 Trigger</span><span class="ival">${d.trigger}</span></div>
+    <div class="irow"><span class="ilabel">💭 Need</span><span class="ival">${d.need}</span></div>
+    <div class="irow"><span class="ilabel">🔄 Reward</span><span class="ival">${d.reward}</span></div>`;
+  msgs.appendChild(c); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function renderPlanCardInline(d) {
+  const msgs = document.getElementById('messages');
+  const c = document.createElement('div');
+  c.className = 'plan-card';
+  const diff = d.difficulty==='easy'?'🟢 Easy':d.difficulty==='medium'?'🟡 Medium':'🔴 Hard';
+  c.innerHTML = `<h4>🎯 Your replacement habit</h4>
+    <div class="plan-text">${d.replacement}</div>
+    <div class="plan-chips">
+      <span class="pchip">📌 ${d.cue}</span>
+      <span class="pdiff ${d.difficulty}">${diff}</span>
+    </div>
+    <div class="plan-why">${d.why}</div>`;
+  msgs.appendChild(c); msgs.scrollTop = msgs.scrollHeight;
+}
+
+function showTyping() {
+  const msgs = document.getElementById('messages');
+  const d = document.createElement('div');
+  d.className = 'msg coach'; d.id = 'typing-ind';
+  d.innerHTML = `<div class="avatar coach"><img src="${ICON_URI}" alt="RW"/></div><div class="bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight;
+}
+function hideTyping() { const t=document.getElementById('typing-ind'); if(t)t.remove(); }
+
+// ── AI CALL ──
+async function sendToAI(userMsg) {
+  const h = getH(activeId);
+  if (!h) return;
+  const isGreeting = userMsg.startsWith('Hi! I want to work on');
+  if (!isGreeting) addMsgEl('user', userMsg);
+  chatHistory.push({role:'user', content:userMsg});
+  showTyping();
+  document.getElementById('msg-input').disabled = true;
+
+  try {
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({messages:chatHistory, habitName:h.name, systemPrompt:SYSTEM_PROMPT})
+    });
+    if (!resp.ok) { const e=await resp.json().catch(()=>({})); throw new Error(e.error||'Error '+resp.status); }
+    const data = await resp.json();
+    const reply = data.reply;
+    chatHistory.push({role:'assistant', content:reply});
+    msgCount += 2;
+    hideTyping();
+
+    // Parse structured responses
+    try {
+      const p = JSON.parse(reply.trim());
+      if (p.type === 'insight') {
+        h.insight = p;
+        h.phase = 'planning';
+        addPhaseDivider('reframe');
+        phaseMarkers['reframe'] = chatHistory.length - 1;
+        renderInsightCardInline(p);
+        currentPhase = 'reframe';
+      } else if (p.type === 'plan') {
+        h.plan = p;
+        h.phase = 'active';
+        addPhaseDivider('plan');
+        phaseMarkers['plan'] = chatHistory.length - 1;
+        renderPlanCardInline(p);
+        currentPhase = 'plan';
+        document.getElementById('btn-finish').style.display = '';
+        // Update phase badge
+        document.getElementById('det-phase').textContent = 'Active';
+        document.getElementById('det-phase').className = 'detail-phase active';
+      }
+    } catch(e) {
+      // Insert diagnosis phase divider around message 4-5
+      if (msgCount === 6 && !phaseMarkers['diagnosis']) {
+        addPhaseDivider('diagnosis');
+        phaseMarkers['diagnosis'] = chatHistory.length - 1;
+        currentPhase = 'diagnosis';
+      }
+      addMsgEl('coach', reply);
+    }
+
+    h.chatHistory = [...chatHistory];
+    h.msgCount = msgCount;
+    h.phaseMarkers = {...phaseMarkers};
+    save();
+    renderHome();
+    updatePhaseSteps();
+
+    const lastCoach = chatHistory.filter(m=>m.role==='assistant').slice(-1)[0];
+    await updateQR(msgCount, lastCoach ? lastCoach.content : '');
+
+  } catch(err) {
+    hideTyping();
+    addMsgEl('coach', '⚠️ Something went wrong: ' + err.message + '. Please try again.');
+  }
+  document.getElementById('msg-input').disabled = false;
   document.getElementById('msg-input').focus();
 }
 
-async function sendMsg(){
-  const input=document.getElementById('msg-input');
-  const text=input.value.trim();
-  if(!text||!activeId)return;
-  input.value='';
+async function sendMsg() {
+  const input = document.getElementById('msg-input');
+  const text = input.value.trim();
+  if (!text || !activeId) return;
+  input.value = '';
   await sendToAI(text);
 }
 
-function addMsg(role,text){
-  const msgs=document.getElementById('messages');
-  const div=document.createElement('div');
-  div.className='msg '+role;
-  const av=document.createElement('div');
-  av.className='avatar '+(role==='coach'?'coach':'user');
-  if(role==='coach'){
-    av.style.cssText='background:#fff;border:1px solid #A8C4E0;overflow:hidden;padding:2px;';
-    av.innerHTML='<img src="data:image/png;base64,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" style="width:100%;height:100%;object-fit:contain;display:block;" alt="Rewire"/>';
+// ── DYNAMIC QUICK REPLIES ──
+async function updateQR(count, lastCoachMsg) {
+  const qr = document.getElementById('quick-replies');
+  qr.innerHTML = '';
+  if (count > 10) {
+    ['💪 I\'ll try it today','🔄 Make it easier','🧠 See my insights'].forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'qr'; btn.textContent = opt;
+      btn.onclick = () => { document.getElementById('msg-input').value=opt; sendMsg(); };
+      qr.appendChild(btn);
+    });
+    return;
+  }
+  if (!lastCoachMsg) return;
+  try {
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        messages: [{role:'user', content:`The habit coach just asked: "${lastCoachMsg}"\n\nGenerate exactly 3 short quick-reply button labels a user could tap to answer. Each: 2-5 words max, starts with a relevant emoji, directly answers what was asked. Output ONLY a JSON array. Example: ["🌙 Late at night","😰 When stressed","😴 Out of boredom"]`}],
+        habitName: '',
+        systemPrompt: 'Output ONLY a JSON array of 3 short reply strings with emojis. No other text.'
+      })
+    });
+    if (!resp.ok) return;
+    const data = await resp.json();
+    const opts = JSON.parse(data.reply.trim());
+    if (!Array.isArray(opts)) return;
+    opts.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.className = 'qr'; btn.textContent = opt;
+      btn.onclick = () => { document.getElementById('msg-input').value=opt; sendMsg(); };
+      qr.appendChild(btn);
+    });
+  } catch(e) {}
+}
+
+// ── TRACKER TAB ──
+function renderTracker() {
+  const h = getH(activeId);
+  if (!h) return;
+  const pane = document.getElementById('tracker-pane');
+  const today = todayKey();
+  const checkedToday = h.checkinDates && h.checkinDates[h.checkinDates.length-1] === today;
+
+  if (!h.plan) {
+    pane.innerHTML = `<div class="no-insight" style="text-align:center;padding:2rem;color:var(--text-3)"><div style="font-size:40px;margin-bottom:.75rem">📊</div><p style="font-size:14px">Finish your first coaching session — your tracker unlocks once you have a plan.</p></div>`;
+    return;
+  }
+
+  let checkinHtml = '';
+  if (checkedToday) {
+    const todayResult = h.checkins[h.checkins.length-1];
+    checkinHtml = `<div class="already-done">${todayResult ? '✅ Showed up today. That&#39;s what matters.' : '📝 Missed today — no shame in it. Tomorrow is a fresh start.'}</div>`;
   } else {
-    av.textContent='You';
+    checkinHtml = `
+      <div class="checkin-plan-text">🎯 ${h.plan.replacement}</div>
+      <div class="checkin-q">Did you show up for your replacement habit today?</div>
+      <div class="checkin-btns">
+        <button class="ci-yes" onclick="logCheckin(true)">Showed up ✅</button>
+        <button class="ci-no" onclick="logCheckin(false)">Not this time</button>
+      </div>`;
   }
-  const bub=document.createElement('div');
-  bub.className='bubble';
-  bub.innerHTML=text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
-  div.appendChild(av);div.appendChild(bub);
-  msgs.appendChild(div);
-  msgs.scrollTop=msgs.scrollHeight;
-}
 
-function renderInsightCard(d){
-  const msgs=document.getElementById('messages');
-  const c=document.createElement('div');
-  c.className='insight-card';
-  c.innerHTML=`<h4>🧠 Here's what's driving your habit</h4><div class="insight-row"><span class="insight-label">🎯 Trigger</span><span class="insight-val">${d.trigger}</span></div><div class="insight-row"><span class="insight-label">💭 Need</span><span class="insight-val">${d.need}</span></div><div class="insight-row"><span class="insight-label">🔄 Reward</span><span class="insight-val">${d.reward}</span></div>`;
-  msgs.appendChild(c);msgs.scrollTop=msgs.scrollHeight;
-}
-
-function renderPlanCard(d){
-  const msgs=document.getElementById('messages');
-  const c=document.createElement('div');
-  c.className='plan-card';
-  const diff=d.difficulty==='easy'?'🟢 Easy':d.difficulty==='medium'?'🟡 Medium':'🔴 Hard';
-  c.innerHTML=`<h4>🎯 Your replacement habit</h4><div class="plan-replacement">${d.replacement}</div><div class="plan-meta"><span class="plan-chip">📌 When: ${d.cue}</span><span class="plan-difficulty ${d.difficulty}">${diff}</span></div><div class="plan-why">${d.why}</div>`;
-  msgs.appendChild(c);msgs.scrollTop=msgs.scrollHeight;
-}
-
-function showTyping(){
-  const msgs=document.getElementById('messages');
-  const d=document.createElement('div');
-  d.className='msg coach';d.id='typing-ind';
-  d.innerHTML='<div class="avatar coach"><img src="data:image/png;base64,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" style="width:20px;height:20px;object-fit:contain;" alt="RW"/></div><div class="bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>';
-  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;
-}
-function hideTyping(){const t=document.getElementById('typing-ind');if(t)t.remove();}
-
-function updateChatUI(phase,count){
-  const badge=document.getElementById('chat-phase-badge');
-  badge.textContent=PHASE_LABELS[phase]||'Diagnosing';
-  badge.className='chat-phase-badge '+(phase||'diagnosing');
-  const activeStep=count<=3?0:count<=5?1:count<=7?2:3;
-  const isDone=(phase==='active'||phase==='completed');
-  ['step-1','step-2','step-3','step-4'].forEach((s,i)=>{
-    const el=document.getElementById(s);
-    if(isDone){el.className='phase-step done';}
-    else{el.className='phase-step'+(i<activeStep?' done':i===activeStep?' active-step':'');}
-  });
-}
-
-function updateQR(count){
-  const qr=document.getElementById('quick-replies');
-  qr.innerHTML='';
-  let opts=[];
-  if(count<=2)opts=['🌙 At night','😰 When I\'m stressed','😴 Out of boredom','🔁 It\'s a ritual'];
-  else if(count<=5)opts=['😰 Stress relief','😴 Beat boredom','🏆 Reward myself','⚡ Low energy'];
-  else if(count<=8)opts=['💯 That\'s exactly it!','🤔 Tell me more','✅ Ready for my plan!'];
-  else opts=['💪 I\'ll try today','🔄 Make it easier','📅 See you tomorrow'];
-  opts.forEach(opt=>{
-    const btn=document.createElement('button');
-    btn.className='qr';btn.textContent=opt;
-    btn.onclick=()=>{document.getElementById('msg-input').value=opt;sendMsg();};
-    qr.appendChild(btn);
-  });
-}
-
-function openCheckin(id){
-  activeId=id;
-  const h=getH(id);
-  if(!h||!h.plan)return;
-  document.getElementById('ci-habit-name').textContent=h.emoji+' '+h.name;
-  document.getElementById('ci-plan-text').textContent='🎯 '+h.plan.replacement;
-  const dots=document.getElementById('ci-dots');
-  dots.innerHTML='';
-  for(let i=0;i<7;i++){
-    const ci=h.checkins[h.checkins.length-7+i];
-    const d=document.createElement('div');
-    if(ci===undefined){d.className='ci-dot empty';d.textContent='·';}
-    else{d.className='ci-dot '+(ci?'done':'miss');d.textContent=ci?'✓':'✗';}
-    dots.appendChild(d);
+  // Build calendar (last 28 days)
+  const calItems = [];
+  for (let i = 27; i >= 0; i--) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const idx = (h.checkinDates || []).indexOf(key);
+    let cls = '';
+    let label = '';
+    if (idx !== -1) { cls = h.checkins[idx] ? 'done' : 'miss'; label = h.checkins[idx] ? '✓' : '✗'; }
+    const dayLabel = `${d.getMonth()+1}/${d.getDate()}`;
+    calItems.push(`<div class="cal-dot ${cls}" title="${dayLabel}">${label}</div>`);
   }
-  document.getElementById('ci-fill').style.width=h.strength+'%';
-  document.getElementById('ci-label').textContent=scoreLabel(h.strength);
-  document.getElementById('ci-num').textContent=h.strength+'%';
-  document.getElementById('checkin-overlay').classList.add('show');
+
+  // Stats
+  const total = h.checkins.length;
+  const done = h.checkins.filter(Boolean).length;
+  const streak = (() => { let s=0; for(let i=h.checkins.length-1;i>=0&&h.checkins[i];i--)s++; return s; })();
+
+  pane.innerHTML = `
+    <div class="tracker-header">
+      <h3>📊 Daily check-in</h3>
+      <p>Small wins compound. Show up every day.</p>
+    </div>
+    <div class="checkin-box">
+      <h4>Today</h4>
+      ${checkinHtml}
+    </div>
+    <div class="strength-box">
+      <h4>Habit strength</h4>
+      <div class="strength-score">${h.strength}%</div>
+      <div class="strength-sublabel">${scoreLabel(h.strength)}</div>
+      <div class="big-bar"><div class="big-fill" style="width:${h.strength}%"></div></div>
+    </div>
+    <div class="calendar-box">
+      <h4>Last 28 days</h4>
+      <div class="cal-grid">${calItems.join('')}</div>
+      <div class="stats-row">
+        <div class="stat-box"><div class="stat-num">${done}</div><div class="stat-label">Total done</div></div>
+        <div class="stat-box"><div class="stat-num">${streak}</div><div class="stat-label">Current streak</div></div>
+        <div class="stat-box"><div class="stat-num">${total ? Math.round(done/total*100) : 0}%</div><div class="stat-label">Success rate</div></div>
+      </div>
+    </div>`;
 }
 
-function closeCheckin(){document.getElementById('checkin-overlay').classList.remove('show');activeId=null;}
-
-function logCheckin(success){
-  const h=getH(activeId);
-  if(!h)return;
-  const hid=h.id;
+function logCheckin(success) {
+  const h = getH(activeId);
+  if (!h) return;
+  const today = todayKey();
+  if (!h.checkinDates) h.checkinDates = [];
+  if (h.checkinDates[h.checkinDates.length-1] === today) return; // already checked in
   h.checkins.push(success);
-  const recent=h.checkins.slice(-14);
-  const done=recent.filter(Boolean).length;
-  h.strength=Math.min(100,Math.round((done/Math.max(recent.length,1))*100));
-  const last7=h.checkins.slice(-7);
-  if(last7.length===7&&last7.every(Boolean))h.phase='completed';
-  save();renderBoard();
-  closeCheckin();
-  setTimeout(()=>{activeId=hid;openCheckin(hid);},150);
+  h.checkinDates.push(today);
+  // Recalculate strength
+  const recent = h.checkins.slice(-14);
+  h.strength = Math.min(100, Math.round((recent.filter(Boolean).length / Math.max(recent.length,1)) * 100));
+  // Auto-complete after 7 consecutive successes
+  const last7 = h.checkins.slice(-7);
+  if (last7.length === 7 && last7.every(Boolean)) {
+    h.phase = 'completed';
+    showToast('🏆 You broke the loop. That\'s huge.');
+  } else {
+    showToast(success ? '✅ Showed up! Keep the streak going.' : '📝 Miss logged. Tomorrow is a new day!');
+  }
+  save();
+  renderTracker();
+  renderHome();
 }
 
-// INIT
-if(habits.length>0){
-  document.getElementById('onboard').style.display='none';
-  document.getElementById('kanban').style.display='';
-  renderBoard();
+// ── INSIGHTS TAB ──
+function renderInsightsTab() {
+  const h = getH(activeId);
+  if (!h) return;
+  const pane = document.getElementById('insights-pane');
+  if (!h.insight && !h.plan) {
+    pane.innerHTML = `<div class="no-insight"><div style="font-size:40px">🧠</div><p>Finish the coaching session and your habit loop breakdown will live here — always accessible.</p></div>`;
+    return;
+  }
+  let html = '';
+  if (h.insight) {
+    html += `<div class="insight-full">
+      <h3>🧠 Your habit loop</h3>
+      <div class="insight-full-row"><span class="ifl">🎯 Trigger</span><span class="ifv">${h.insight.trigger}</span></div>
+      <div class="insight-full-row"><span class="ifl">💭 Need</span><span class="ifv">${h.insight.need}</span></div>
+      <div class="insight-full-row"><span class="ifl">🔄 Reward</span><span class="ifv">${h.insight.reward}</span></div>
+    </div>`;
+  }
+  if (h.plan) {
+    const diff = h.plan.difficulty==='easy'?'🟢 Easy':h.plan.difficulty==='medium'?'🟡 Medium':'🔴 Hard';
+    html += `<div class="plan-full">
+      <h3>🎯 Your replacement habit</h3>
+      <div class="plan-full-text">${h.plan.replacement}</div>
+      <div class="plan-full-chips">
+        <span class="pchip">📌 When: ${h.plan.cue}</span>
+        <span class="pdiff ${h.plan.difficulty}" style="background:rgba(255,255,255,.15);color:#fff">${diff}</span>
+      </div>
+      <div class="plan-full-why">💡 ${h.plan.why}</div>
+    </div>`;
+  }
+  pane.innerHTML = html;
 }
+
+// ── FINISH HABIT ──
+function finishHabit() {
+  const h = getH(activeId);
+  if (!h) return;
+  h.phase = 'history';
+  h.finishedAt = Date.now();
+  save();
+  showToast('🎉 Habit closed. You did the work.');
+  goHome();
+}
+
+// ── HISTORY SCREEN ──
+function renderHistory() {
+  const content = document.getElementById('history-content');
+  const done = habits.filter(h => h.phase === 'history');
+  if (!done.length) {
+    content.innerHTML = `<div class="history-empty"><div class="history-empty-icon">📋</div><p>No closed habits yet.<br>When you've beaten one, it lives here.</p></div>`;
+    return;
+  }
+  content.innerHTML = `<div style="margin-bottom:1rem;font-size:14px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em">${done.length} Beaten habit${done.length>1?'s':''}</div>
+    <div class="history-grid">${done.map(h => renderCard({...h, phase:'history'})).join('')}</div>`;
+  // Make history cards open detail view
+  content.querySelectorAll('.hcard').forEach((card, i) => {
+    card.onclick = () => openDetail(done[i].id, false);
+  });
+}
+
+// ── INIT ──
+renderHome();
 </script>
 </body>
 </html>
