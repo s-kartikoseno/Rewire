@@ -345,100 +345,10 @@
     .send-btn:hover { background: var(--navy-mid); }
 
     /* ── API KEY MODAL ── */
-    .key-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(27,45,79,0.5);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
-
-    .key-overlay.show { display: flex; }
-
-    .key-modal {
-      background: var(--white);
-      border-radius: var(--radius);
-      padding: 2rem;
-      max-width: 420px;
-      width: 100%;
-      box-shadow: 0 8px 40px rgba(27,45,79,0.2);
-    }
-
-    .key-modal h2 {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--navy);
-      margin-bottom: 0.5rem;
-    }
-
-    .key-modal p {
-      font-size: 13px;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      margin-bottom: 1rem;
-    }
-
-    .key-modal a { color: var(--navy-mid); }
-
-    .key-modal input {
-      width: 100%;
-      font-family: var(--font);
-      font-size: 13px;
-      padding: 10px 13px;
-      border: 1.5px solid var(--border-strong);
-      border-radius: var(--radius-sm);
-      margin-bottom: 1rem;
-      outline: none;
-    }
 
     .key-modal input:focus {
       border-color: var(--navy-mid);
       box-shadow: 0 0 0 3px rgba(43,74,122,0.1);
-    }
-
-    .key-actions { display: flex; gap: 8px; justify-content: flex-end; }
-
-    .btn-secondary {
-      font-family: var(--font);
-      font-size: 13px;
-      padding: 9px 16px;
-      background: transparent;
-      color: var(--text-secondary);
-      border: 1px solid var(--border-strong);
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-    }
-
-    .btn-primary {
-      font-family: var(--font);
-      font-size: 13px;
-      font-weight: 500;
-      padding: 9px 16px;
-      background: var(--navy);
-      color: var(--white);
-      border: none;
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-    }
-
-    .key-status {
-      font-size: 12px;
-      padding: 2px 8px;
-      border-radius: var(--radius-pill);
-      cursor: pointer;
-      margin-left: auto;
-      background: var(--accent-light);
-      color: var(--navy);
-      border: 1px solid var(--accent);
-    }
-
-    .key-status.set {
-      background: #E8F5E9;
-      color: #2E7D32;
-      border-color: #A5D6A7;
     }
 
     @media (max-width: 480px) {
@@ -451,18 +361,7 @@
 
 <div class="app">
 
-  <!-- API KEY MODAL -->
-  <div class="key-overlay" id="key-overlay">
-    <div class="key-modal">
-      <h2>Enter your API key</h2>
-      <p>Rewire uses the Anthropic API to power conversations. Get your free key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> — it takes 5 minutes and includes free credits.</p>
-      <input type="password" id="key-input" placeholder="sk-ant-..." />
-      <div class="key-actions">
-        <button class="btn-secondary" onclick="closeKeyModal()">Cancel</button>
-        <button class="btn-primary" onclick="saveKey()">Save key</button>
-      </div>
-    </div>
-  </div>
+
 
   <!-- ONBOARDING -->
   <div class="onboard" id="onboard">
@@ -481,9 +380,7 @@
       <input type="text" id="habit-input" placeholder="e.g. midnight snacking, doomscrolling, procrastinating..." onkeydown="if(event.key==='Enter') startSession()" />
       <button class="btn-start" onclick="startSession()">Start →</button>
     </div>
-    <div style="margin-top:1rem;">
-      <button class="key-status" id="key-status-btn" onclick="openKeyModal()">⚙ API key</button>
-    </div>
+
   </div>
 
   <!-- CHAT -->
@@ -492,7 +389,7 @@
       <div class="chat-logo-text">Rewire</div>
       <span class="habit-tag" id="habit-tag"></span>
       <span class="phase-badge" id="phase-badge">Discovery</span>
-      <button class="key-status" id="chat-key-btn" onclick="openKeyModal()" style="margin-left:8px;">⚙</button>
+
     </div>
     <div class="messages" id="messages"></div>
     <div class="quick-replies" id="quick-replies"></div>
@@ -508,8 +405,6 @@
   let habitName = "";
   let history = [];
   let msgCount = 0;
-  let apiKey = localStorage.getItem("rewire_api_key") || "";
-
   const SYSTEM_PROMPT = `You are Rewire, a compassionate AI habit coach. You help users understand and replace any bad lifestyle habit using BJ Fogg's Tiny Habits framework and James Clear's habit loop theory (cue → routine → reward).
 
 The user has described their habit. Your ONLY focus is helping them understand and replace that specific habit. Do not discuss unrelated topics.
@@ -529,71 +424,28 @@ Rules:
 - If user shows signs of a clinical condition, warmly redirect them to seek professional support.
 - Always stay focused on the user's specific described habit.`;
 
-  function updateKeyStatus() {
-    const btn = document.getElementById("key-status-btn");
-    const chatBtn = document.getElementById("chat-key-btn");
-    if (apiKey) {
-      btn.textContent = "✓ API key set";
-      btn.className = "key-status set";
-      if (chatBtn) { chatBtn.textContent = "✓"; chatBtn.className = "key-status set"; }
-    } else {
-      btn.textContent = "⚙ Set API key";
-      btn.className = "key-status";
-      if (chatBtn) { chatBtn.textContent = "⚙"; chatBtn.className = "key-status"; }
-    }
-  }
 
-  function openKeyModal() {
-    document.getElementById("key-input").value = apiKey || "";
-    document.getElementById("key-overlay").classList.add("show");
-  }
 
-  function closeKeyModal() {
-    document.getElementById("key-overlay").classList.remove("show");
-  }
 
-  function saveKey() {
-    const val = document.getElementById("key-input").value.trim();
-    apiKey = val;
-    localStorage.setItem("rewire_api_key", val);
-    updateKeyStatus();
-    closeKeyModal();
-  }
+
+
+
+
 
   async function callClaude(userMsg) {
-    if (!apiKey) {
-      openKeyModal();
-      throw new Error("No API key");
-    }
     history.push({ role: "user", content: userMsg });
-    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+    const resp = await fetch("/api/chat", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "anthropic-dangerous-allow-browser": "true"
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1000,
-        system: SYSTEM_PROMPT + "\n\nThe user's habit is: " + habitName,
-        messages: history
-      })
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: history, habitName: habitName })
     });
     if (!resp.ok) {
-      let errMsg = "API error " + resp.status;
-      try {
-        const err = await resp.json();
-        errMsg = err.error?.message || errMsg;
-      } catch(e) {}
-      if (resp.status === 401) errMsg = "Invalid API key. Please check and re-enter your key.";
-      if (resp.status === 403) errMsg = "API key does not have permission. Make sure it is active.";
-      if (resp.status === 429) errMsg = "Rate limit hit. Please wait a moment and try again.";
+      let errMsg = "Error " + resp.status;
+      try { const err = await resp.json(); errMsg = err.error || errMsg; } catch(e) {}
       throw new Error(errMsg);
     }
     const data = await resp.json();
-    const reply = data.content.map(b => b.text || "").join("");
+    const reply = data.reply;
     history.push({ role: "assistant", content: reply });
     return reply;
   }
@@ -666,7 +518,6 @@ Rules:
     const input = document.getElementById("habit-input");
     habitName = input.value.trim();
     if (!habitName) return;
-    if (!apiKey) { openKeyModal(); return; }
     document.getElementById("onboard").style.display = "none";
     const chat = document.getElementById("chat");
     chat.style.display = "flex";
@@ -682,9 +533,7 @@ Rules:
       updateQuickReplies();
     } catch (e) {
       hideTyping();
-      if (e.message !== "No API key") {
-        addMsg("coach", "Something went wrong: " + e.message + ". Please check your API key and try again.");
-      }
+      addMsg("coach", "Something went wrong: " + e.message + ". Please try again.");
     }
   }
 
@@ -713,7 +562,7 @@ Rules:
     input.focus();
   }
 
-  updateKeyStatus();
+
 </script>
 </body>
 </html>
